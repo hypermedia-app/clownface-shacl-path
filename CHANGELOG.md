@@ -1,5 +1,11 @@
 # clownface-shacl-path
 
+## 1.2.0
+
+### Minor Changes
+
+- b95ca15: Dual build
+
 ## 1.1.0
 
 ### Minor Changes
