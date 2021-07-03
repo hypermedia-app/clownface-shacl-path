@@ -1,23 +1,26 @@
 {
   "env": {
-    "modules": {
+    "cjs": {
       "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "targets": {
+              "node": "current"
+            }
+          }
+        ],
         "@babel/preset-typescript"
       ],
       "plugins": [
-        ["babel-plugin-add-import-extension", { "extension": "mjs" }]
+        ["babel-plugin-add-import-extension", { "extension": "cjs" }]
       ]
     }
   },
   "presets": [
-    [
-      "@babel/preset-env",
-      {
-        "targets": {
-          "node": "current"
-        }
-      }
-    ],
     "@babel/preset-typescript"
+  ],
+  "plugins": [
+    ["babel-plugin-add-import-extension"]
   ]
 }

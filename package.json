@@ -5,16 +5,25 @@
   "main": "index.js",
   "type": "module",
   "files": [
-    "**/*.js",
-    "**/*.d.ts"
+    "*.js",
+    "*.cjs",
+    "*.d.ts",
+    "*.d.ts.map",
+    "lib"
   ],
+  "sideEffects": false,
+  "exports": {
+    "require": "./index.cjs",
+    "import": "./index.js"
+  },
   "scripts": {
     "prepare": "husky install",
     "prepack": "npm run build",
     "build": "run-p build:*",
-    "build:cjs": "tsc",
-    "build:esm": "BABEL_ENV=modules babel src --out-dir . --extensions .ts --out-file-extension .mjs",
+    "build:esm": "babel src --out-dir . --extensions .ts",
+    "build:cjs": "BABEL_ENV=cjs babel src --out-dir . --extensions .ts --out-file-extension .cjs",
     "test": "c8 --all --reporter=lcov mocha --recursive 'test/*.test.ts'",
+    "lint": "eslint . --ext .ts --quiet --ignore-path .gitignore",
     "release": "changeset publish"
   },
   "dependencies": {
@@ -27,6 +36,7 @@
     "clownface": "^1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.14.5",
     "@babel/core": "^7.14.6",
     "@babel/preset-env": "^7.14.7",
     "@babel/preset-typescript": "^7.14.5",
@@ -39,6 +49,8 @@
     "@types/clownface": "^1.2.0",
     "@types/mocha": "^8.2.2",
     "@types/rdf-js": "^4.0.1",
+    "@types/rdfjs__dataset": "^1.0.5",
+    "@types/rdfjs__term-set": "^1.0.3",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
     "@typescript-eslint/parser": "^4.28.1",
     "babel-plugin-add-import-extension": "^1.5.1",
@@ -53,6 +65,7 @@
     "husky": "^7.0.0",
     "lint-staged": "^11.0.0",
     "mocha": "^9.0.2",
+    "npm-run-all": "^4.1.5",
     "standard": "^16.0.3",
     "typescript": "^3.9.3"
   },

@@ -1,6 +1,6 @@
+import { NamedNode } from 'rdf-js'
 import { SparqlTemplateResult, sparql } from '@tpluscode/rdf-string'
 import { MultiPointer } from 'clownface'
-import { NamedNode } from 'rdf-js'
 import { sh } from '@tpluscode/rdf-ns-builders'
 
 interface PartialPath {

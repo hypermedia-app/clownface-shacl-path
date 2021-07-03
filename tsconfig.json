@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es2019",
     "module": "ESNext",
-    "baseUrl": "./",
+    "outDir": ".",
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "Node",
     "declaration": true,
@@ -13,25 +13,10 @@
     "esModuleInterop": true,
     "strict": true,
     "strictNullChecks": true,
-    "noImplicitAny": true,
-    "typeRoots": [
-      "node_modules/@types",
-      "types"
-    ],
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "plugins": [
-      {
-        "name": "ts-lit-plugin"
-      }
-    ]
+    "noImplicitAny": true
   },
+  "files": ["src/index.ts"],
   "include": [
-    "packages",
-    "demos",
-    "karma.conf.js",
-    "test-setup.js",
-    "test-karma-setup.js",
-    "types/global.d.ts"
+    "test"
   ]
 }

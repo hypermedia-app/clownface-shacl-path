@@ -1,10 +1,11 @@
-import { expect } from 'chai'
-import { schema, sh, skos, foaf, rdf, owl } from '@tpluscode/rdf-ns-builders'
 import { NamedNode, BlankNode } from 'rdf-js'
+import { expect } from 'chai'
+import { describe, it } from 'mocha'
+import { schema, sh, skos, foaf, rdf, owl } from '@tpluscode/rdf-ns-builders'
 import type { GraphPointer } from 'clownface'
 import { literal } from '@rdf-esm/data-model'
 import namespace from '@rdf-esm/namespace'
-import { findNodes, toSparql } from '../index'
+import { findNodes, toSparql } from '../src'
 import { any, blankNode, namedNode } from './nodeFactory'
 
 const tbbt = namespace('http://example.com/')

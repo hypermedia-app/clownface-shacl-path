@@ -1,5 +1,5 @@
-import type { MultiPointer } from 'clownface'
 import { NamedNode } from 'rdf-js'
+import type { MultiPointer } from 'clownface'
 import { sh } from '@tpluscode/rdf-ns-builders'
 import TermSet from '@rdf-esm/term-set'
 

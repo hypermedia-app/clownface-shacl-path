@@ -1,6 +1,6 @@
 {
   "extends": [ "@tpluscode" ],
   "parserOptions": {
-    "project": "./tsconfig.json"
+    "project": "./tsconfig.lint.json"
   }
 }
