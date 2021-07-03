@@ -1,11 +1,13 @@
 import { expect } from 'chai'
 import { schema, sh, skos, foaf, rdf, owl } from '@tpluscode/rdf-ns-builders'
 import { NamedNode, BlankNode } from 'rdf-js'
-import { any, blankNode, namedNode } from '@shaperone/testing/nodeFactory'
-import { ex, ex as tbbt } from '@shaperone/testing'
 import type { GraphPointer } from 'clownface'
 import { literal } from '@rdf-esm/data-model'
+import namespace from '@rdf-esm/namespace'
 import { findNodes, toSparql } from '../index'
+import { any, blankNode, namedNode } from './nodeFactory'
+
+const tbbt = namespace('http://example.com/')
 
 describe('clownface-shacl-path', () => {
   describe('findNodes', () => {
@@ -524,7 +526,7 @@ describe('clownface-shacl-path', () => {
         root.blankNode().addList(sh.alternativePath, [
           root.blankNode().addOut(sh.oneOrMorePath, schema.knows),
           root.blankNode().addList(sh.zeroOrMorePath, [owl.sameAs, foaf.name]),
-          root.blankNode().addList(sh.inversePath, [ex.foo, ex.bar]),
+          root.blankNode().addList(sh.inversePath, [tbbt.foo, tbbt.bar]),
         ]),
       ])
       const [path] = root.out(sh.path).toArray()

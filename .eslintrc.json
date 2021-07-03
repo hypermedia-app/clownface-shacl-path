@@ -1,32 +1,6 @@
 {
-  "extends": [
-    "@open-wc/eslint-config",
-    "@tpluscode"
-  ],
-  "env": {
-    "browser": true
-  },
+  "extends": [ "@tpluscode" ],
   "parserOptions": {
     "project": "./tsconfig.json"
-  },
-  "rules": {
-    "import/no-extraneous-dependencies": ["error", {"devDependencies": ["**/test/**", "**/demo/**"]}],
-    "no-shadow": "off",
-    "max-len": ["error", 200],
-    "wc/guard-super-call": "off",
-    "class-methods-use-this": "off",
-    "no-param-reassign": ["error", { "props": false }]
-  },
-  "overrides": [{
-    "files": "**/test/**/*.ts",
-    "rules": {
-      "no-unused-expressions": "warn",
-      "babel/no-unused-expressions": "off"
-    }
-  }, {
-    "files": "packages/core/lib/components/*.ts",
-    "rules": {
-      "@typescript-eslint/no-empty-interface": "off"
-    }
-  }]
+  }
 }
