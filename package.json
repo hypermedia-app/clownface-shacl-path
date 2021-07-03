@@ -71,7 +71,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tpluscode/clownface-shacl-path"
+    "url": "https://github.com/hypermedia-app/clownface-shacl-path"
   },
   "author": "Tomasz Pluskiewicz <awesome@hypermedia.app>",
   "license": "MIT",
