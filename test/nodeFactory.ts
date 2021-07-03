@@ -1,5 +1,5 @@
 import { NamedNode } from 'rdf-js'
-import clownface = require('clownface')
+import clownface from 'clownface'
 import { dataset } from '@rdf-esm/dataset'
 
 export function blankNode() {
