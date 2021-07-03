@@ -25,7 +25,6 @@
     "release": "changeset publish"
   },
   "dependencies": {
-    "@changesets/cli": "^2.16.0",
     "@rdf-esm/term-set": "^0.5.0",
     "@tpluscode/rdf-ns-builders": "^1.0.0",
     "@tpluscode/rdf-string": "^0.2.24"
@@ -39,6 +38,7 @@
     "@babel/preset-env": "^7.14.7",
     "@babel/preset-typescript": "^7.14.5",
     "@babel/register": "^7.14.5",
+    "@changesets/cli": "^2.16.0",
     "@rdf-esm/data-model": "^0.5.4",
     "@rdf-esm/dataset": "^0.5.1",
     "@rdf-esm/namespace": "^0.5.3",
