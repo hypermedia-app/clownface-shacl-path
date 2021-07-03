@@ -1,5 +1,11 @@
 # clownface-shacl-path
 
+## 1.2.1
+
+### Patch Changes
+
+- 58d8bc8: Remove changesets from dependencies
+
 ## 1.2.0
 
 ### Minor Changes
