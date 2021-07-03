@@ -16,8 +16,5 @@
     "strictNullChecks": true,
     "noImplicitAny": true
   },
-  "files": ["src/index.ts"],
-  "include": [
-    "test"
-  ]
+  "files": ["src/index.ts"]
 }
