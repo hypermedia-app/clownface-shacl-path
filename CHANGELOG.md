@@ -1,5 +1,11 @@
 # clownface-shacl-path
 
+## 1.2.2
+
+### Patch Changes
+
+- 07f15aa: Modules were built as commonjs
+
 ## 1.2.1
 
 ### Patch Changes
