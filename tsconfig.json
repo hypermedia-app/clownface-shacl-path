@@ -3,6 +3,7 @@
     "target": "es2019",
     "module": "ESNext",
     "outDir": ".",
+    "emitDeclarationOnly": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "Node",
     "declaration": true,

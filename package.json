@@ -5,10 +5,7 @@
   "main": "index.js",
   "type": "module",
   "files": [
-    "*.js",
-    "*.cjs",
-    "*.d.ts",
-    "*.d.ts.map",
+    "index.*",
     "lib"
   ],
   "sideEffects": false,
@@ -20,6 +17,7 @@
     "prepare": "husky install",
     "prepack": "npm run build",
     "build": "run-p build:*",
+    "build:declarations": "tsc",
     "build:esm": "babel src --out-dir . --extensions .ts",
     "build:cjs": "BABEL_ENV=cjs babel src --out-dir . --extensions .ts --out-file-extension .cjs",
     "test": "c8 --all --reporter=lcov mocha --recursive 'test/*.test.ts'",
