@@ -1,0 +1,23 @@
+{
+  "env": {
+    "modules": {
+      "presets": [
+        "@babel/preset-typescript"
+      ],
+      "plugins": [
+        ["babel-plugin-add-import-extension", { "extension": "mjs" }]
+      ]
+    }
+  },
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "current"
+        }
+      }
+    ],
+    "@babel/preset-typescript"
+  ]
+}

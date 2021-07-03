@@ -1,14 +1,8 @@
 node_modules
 *.js
-*.js.map
-!*.config.js
-!*.conf.js
-coverage/
-!test-setup.js
+*.cjs
+!test-setup.cjs
 *.d.ts
 *.d.ts.map
-dist/api/
-dist/playground/
-dist/shaperone-form/
-!types/**/*.d.ts
+coverage/
 *.log
