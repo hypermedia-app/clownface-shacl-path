@@ -61,10 +61,6 @@ function traverse(node: MultiPointer, path: MultiPointer): MultiPointer {
       return node.node([...results.values()])
     }
 
-    if (path.out(sh.zeroOrMorePath).term) {
-      throw new Error('sh:zeroOrMorePath and sh:oneOrMorePath are not supported')
-    }
-
     throw new Error(`Unrecognized property path ${path.value}`)
   }
 
