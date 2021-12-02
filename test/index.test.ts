@@ -1,4 +1,4 @@
-import { NamedNode, BlankNode } from 'rdf-js'
+import { NamedNode, BlankNode, Term } from 'rdf-js'
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import { schema, sh, skos, foaf, rdf, owl } from '@tpluscode/rdf-ns-builders'
@@ -206,11 +206,72 @@ describe('clownface-shacl-path', () => {
       expect(() => findNodes(blankNode(), path)).to.throw(Error)
     })
 
+    describe('*-or-more paths', () => {
+      const shape = graph.namedNode('shape')
+        .addList(sh.and, [namedNode('and1'), namedNode('and2')])
+        .addList(sh.xone, [namedNode('xone1'), namedNode('xone2')])
+        .addList(sh.or, [namedNode('or1'), namedNode('or2')])
+
+      it('follows one-or-more path', () => {
+        // given
+        /*
+         sh:path (
+           [ sh:alternativePath ( sh:and sh:or ) ]
+           [ sh:oneOrMorePath rdf:rest ]
+           rdf:first
+         )
+         */
+        const root = blankNode()
+        root.addList<Term>(sh.path, [
+          root.blankNode().addList(sh.alternativePath, [sh.and, sh.or]),
+          root.blankNode().addOut(sh.oneOrMorePath, rdf.rest),
+          rdf.first,
+        ])
+        const [path] = root.out(sh.path).toArray()
+
+        // when
+        const nodes = findNodes(shape, path)
+
+        // then
+        expect(nodes.terms).to.deep.contain.members([
+          namedNode('and2').term,
+          namedNode('or2').term,
+        ])
+      })
+
+      it('follows zero-or-more path', () => {
+        // given
+        /*
+         sh:path (
+           [ sh:alternativePath ( sh:and sh:or ) ]
+           [ sh:zeroOrMorePath rdf:rest ]
+           rdf:first
+         )
+         */
+        const root = blankNode()
+        root.addList<Term>(sh.path, [
+          root.blankNode().addList(sh.alternativePath, [sh.and, sh.or]),
+          root.blankNode().addOut(sh.zeroOrMorePath, rdf.rest),
+          rdf.first,
+        ])
+        const [path] = root.out(sh.path).toArray()
+
+        // when
+        const nodes = findNodes(shape, path)
+
+        // then
+        expect(nodes.terms).to.deep.contain.members([
+          namedNode('and1').term,
+          namedNode('and2').term,
+          namedNode('or1').term,
+          namedNode('or2').term,
+        ])
+      })
+    })
+
     describe('throws when path is not supported', () => {
       const unsupportedPaths: [string, GraphPointer][] = [
         ['sh:alternativePath not a list', blankNode().addOut(sh.alternativePath)],
-        ['path is sh:zeroOrMorePath', blankNode().addOut(sh.zeroOrMorePath)],
-        ['path is sh:oneOrMorePath', blankNode().addOut(sh.oneOrMorePath)],
         ['path is not any SHACL Property Path', blankNode()],
       ]
 

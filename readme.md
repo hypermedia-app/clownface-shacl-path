@@ -51,11 +51,6 @@ path.addList(sh.alternativePath, [
 findNodes(amy, path)
 ```
 
-#### Remarks
-
-The package does not implement the `*OrMore` paths
-
-
 ### `toSparql`
 
 Converts a [SHACL Property Path](https://www.w3.org/TR/shacl/#property-paths) to SPARQL Property Path string template object. Use the property path with [@tpluscode/sparql-builder](https://npm.im/@tpluscode/sparql-builder)

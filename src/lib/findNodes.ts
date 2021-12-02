@@ -36,7 +36,32 @@ function traverse(node: MultiPointer, path: MultiPointer): MultiPointer {
       return node.node([...node.terms, ...outNodes.terms])
     }
 
-    if (path.out([sh.zeroOrMorePath, sh.oneOrMorePath]).term) {
+    const orMorePath = path.out([sh.zeroOrMorePath, sh.oneOrMorePath])
+    if (orMorePath.term) {
+      const results = new TermSet(
+        path.out(sh.zeroOrMorePath).term ? node.terms : [],
+      )
+
+      let current = node
+      let currentTerms = new TermSet(current.terms)
+      while (currentTerms.size) {
+        const nextNodes = traverse(current, orMorePath).toArray()
+        const newResults = new TermSet()
+        for (const next of nextNodes) {
+          if (!results.has(next.term)) {
+            newResults.add(next.term)
+            results.add(next.term)
+          }
+        }
+
+        currentTerms = newResults
+        current = node.node([...newResults.values()])
+      }
+
+      return node.node([...results.values()])
+    }
+
+    if (path.out(sh.zeroOrMorePath).term) {
       throw new Error('sh:zeroOrMorePath and sh:oneOrMorePath are not supported')
     }
 
