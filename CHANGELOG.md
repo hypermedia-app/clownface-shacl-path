@@ -1,5 +1,11 @@
 # clownface-shacl-path
 
+## 1.3.0
+
+### Minor Changes
+
+- 1b31a25: Add support for `sh:oneOrMorePath` and `sh:zeroOrMorePath`
+
 ## 1.2.2
 
 ### Patch Changes
