@@ -88,11 +88,33 @@ describe('clownface-shacl-path', () => {
       // given
       /*
        sh:path [
-         sh:zeroOrOnePath schema:knows
+         sh:zeroOrOnePath schema:spouse
        ]
        */
       const path = blankNode()
       path.addOut(sh.zeroOrOnePath, schema.spouse)
+
+      // when
+      const nodes = findNodes(sheldon, path)
+
+      // then
+      expect(nodes.terms).to.deep.contain.members([
+        tbbt.Sheldon,
+        tbbt.Amy,
+      ])
+    })
+
+    it('follows a complex zero-or-one path', () => {
+      // given
+      /*
+       sh:path [
+         sh:zeroOrOnePath [ sh:alternativePath ( schema:spouse foaf:knows ) ]
+       ]
+       */
+      const path = blankNode()
+      path.addOut(sh.zeroOrOnePath, zeroOrOne => {
+        zeroOrOne.addList(sh.alternativePath, [schema.spouse, foaf.knows])
+      })
 
       // when
       const nodes = findNodes(sheldon, path)
