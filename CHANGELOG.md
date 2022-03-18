@@ -1,5 +1,11 @@
 # clownface-shacl-path
 
+## 1.3.1
+
+### Patch Changes
+
+- 2e15846: `sh:zeroOrOnePath` would only work with direct paths
+
 ## 1.3.0
 
 ### Minor Changes
