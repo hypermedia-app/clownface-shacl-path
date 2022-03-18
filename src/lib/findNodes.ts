@@ -32,8 +32,10 @@ function traverse(node: MultiPointer, path: MultiPointer): MultiPointer {
     }
 
     if (path.out(sh.zeroOrOnePath).term) {
-      const outNodes = node.out(path.out(sh.zeroOrOnePath).term)
-      return node.node([...node.terms, ...outNodes.terms])
+      return node.node([
+        ...node.terms,
+        ...traverse(node, path.out(sh.zeroOrOnePath)).terms,
+      ])
     }
 
     const orMorePath = path.out([sh.zeroOrMorePath, sh.oneOrMorePath])
