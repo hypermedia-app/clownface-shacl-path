@@ -1,5 +1,11 @@
 # clownface-shacl-path
 
+## 1.4.0
+
+### Minor Changes
+
+- 524835d: Added `toSparql.sequence` which splits a path and returns and array of template results (closes #13)
+
 ## 1.3.2
 
 ### Patch Changes
