@@ -85,3 +85,39 @@ SELECT`?friendName`
     ?person ${toSparql(path)} ?friendName .
   `.build()
 ```
+
+### `toSparql.sequence`
+
+In cases when the intermediate nodes of a Sequence Path are important, that path can be split, so that authors can
+create and capture variables for all the nodes.
+
+For that purpose, call `toSparql.sequence()`
+
+```typescript
+import type {GraphPointer} from 'clownface'
+import { toSparql } from 'clownface-shacl-path'
+import { SELECT } from '@tpluscode/sparql-builder'
+import $rdf from 'rdf-ext'
+
+/*
+ [ sh:path ( schema:employee schema:spouse schema:name ) ]
+ */
+let path: GraphPointer
+
+const sequence = toSparql.sequence(path)
+
+/*
+  SELECT *
+  WHERE {
+    ?path0 schema:employee ?path1 .
+    ?path1 schema:spouse ?path2 .
+    ?path2 schema:name ?path3 .
+  }
+ */
+const query = sequence.reduce((query, segment, index) => {
+  const subject = $rdf.variable(`path${index}`)
+  const object = $rdf.variable(`path${index + 1}`)
+    
+  return query.WHERE`${subject} ${segment} ${object}`
+}, SELECT.ALL)
+```
