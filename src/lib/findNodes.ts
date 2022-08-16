@@ -2,11 +2,10 @@ import { NamedNode } from 'rdf-js'
 import type { MultiPointer } from 'clownface'
 import { sh } from '@tpluscode/rdf-ns-builders'
 import TermSet from '@rdf-esm/term-set'
+import { assertWellFormedPath } from './path'
 
 function traverse(node: MultiPointer, path: MultiPointer): MultiPointer {
-  if (!path.term) {
-    throw new Error('SHACL Path must be single node')
-  }
+  assertWellFormedPath(path)
 
   const list = path.list()
   if (list) {

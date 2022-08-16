@@ -134,7 +134,7 @@ describe('clownface-shacl-path', () => {
        ]
        */
       const path = blankNode()
-      path.addOut(sh.zeroOrOnePath, foaf.nows)
+      path.addOut(sh.zeroOrOnePath, foaf.knows)
 
       // when
       const nodes = findNodes(sheldon, path)
@@ -664,6 +664,41 @@ describe('clownface-shacl-path', () => {
 
       // then
       expect(() => toSparql(path)).to.throw(Error)
+    })
+  })
+
+  describe('toSparql.sequence', () => {
+    it('returns a single element when path is Predicate Path', () => {
+      // given
+      const path = namedNode(schema.knows)
+
+      // when
+      const [segment] = toSparql.sequence(path)
+
+      // then
+      expect(segment.toString({ prologue: false })).to.deep.eq('schema:knows')
+    })
+
+    it('returns each segment as individual sparql property path', () => {
+      // given
+      const root = blankNode()
+      root.addList(sh.path, [
+        root.blankNode().addOut(sh.zeroOrOnePath, owl.sameAs),
+        root.blankNode().addList(sh.alternativePath, [
+          root.blankNode().addOut(sh.oneOrMorePath, schema.knows),
+          root.blankNode().addList(sh.zeroOrMorePath, [owl.sameAs, foaf.name]),
+        ]),
+        root.blankNode().addList(sh.inversePath, [tbbt.foo, tbbt.bar]),
+      ])
+      const [path] = root.out(sh.path).toArray()
+
+      // when
+      const [first, second, last] = toSparql.sequence(path).map(segment => segment.toString({ prologue: false }))
+
+      // then
+      expect(first).to.eq('owl:sameAs?')
+      expect(second).to.eq('schema:knows+|(owl:sameAs/foaf:name)*')
+      expect(last).to.eq('^(<http://example.com/foo>/<http://example.com/bar>)')
     })
   })
 })

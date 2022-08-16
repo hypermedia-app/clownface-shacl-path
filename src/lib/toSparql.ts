@@ -2,6 +2,7 @@ import { NamedNode } from 'rdf-js'
 import { SparqlTemplateResult, sparql } from '@tpluscode/rdf-string'
 import { MultiPointer } from 'clownface'
 import { sh } from '@tpluscode/rdf-ns-builders'
+import { assertWellFormedPath } from './path'
 
 interface PartialPath {
   path: SparqlTemplateResult
@@ -28,9 +29,7 @@ function sequence(left: PartialPath, operator: string, index: number) {
 }
 
 function traverse(propertyPath: PartialPath, path: MultiPointer, index = 0): PartialPath {
-  if (!path.term) {
-    throw new Error('SHACL Path must be single node')
-  }
+  assertWellFormedPath(path)
 
   const list = path.list()
   if (list) {
@@ -157,4 +156,21 @@ export function toSparql(path: MultiPointer | NamedNode): SparqlTemplateResult {
     path: sparql``,
     length: 0,
   }, path).path
+}
+
+/**
+ * Splits a Sequence Path and returns an array of SPARQL template results.
+ * If the path is not a Sequence Path, returns an array with a single element
+ *
+ * @param path SHACL Property Path
+ */
+toSparql.sequence = (path: MultiPointer): SparqlTemplateResult[] => {
+  assertWellFormedPath(path)
+
+  const list = path.list()
+  if (list) {
+    return [...list].map(toSparql)
+  }
+
+  return [toSparql(path)]
 }
