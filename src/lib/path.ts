@@ -1,73 +1,121 @@
 import { NamedNode } from 'rdf-js'
 import { GraphPointer, MultiPointer } from 'clownface'
-import { sh, rdf } from '@tpluscode/rdf-ns-builders'
+import { sh } from '@tpluscode/rdf-ns-builders'
 
-// eslint-disable-next-line no-use-before-define
-export type ShaclPropertyPath = PredicatePath | SequencePath | AlternativePath | InversePath | ZeroOrMorePath | OneOrMorePath | ZeroOrOnePath
+export abstract class PathVisitor<R = void, TArg = unknown> {
+  visit(path: ShaclPropertyPath, arg?: TArg): R {
+    const type = path.constructor.name
+    const visit: (path: ShaclPropertyPath, arg?: TArg) => R = (this as any)[`visit${type}`]
 
-export interface PredicatePath {
-  type: typeof rdf.predicate
-  term: NamedNode
+    return visit.call(this, path, arg)
+  }
+
+  abstract visitPredicatePath(path: PredicatePath, arg: TArg): R
+  abstract visitSequencePath(path: SequencePath, arg: TArg): R
+  abstract visitAlternativePath(path: AlternativePath, arg: TArg): R
+  abstract visitInversePath(path: InversePath, arg: TArg): R
+  abstract visitZeroOrMorePath(path: ZeroOrMorePath, arg: TArg): R
+  abstract visitOneOrMorePath(path: OneOrMorePath, arg: TArg): R
+  abstract visitZeroOrOnePath(path: ZeroOrOnePath, arg: TArg): R
 }
 
-export interface SequencePath {
-  type: typeof rdf.List
-  paths: ShaclPropertyPath[]
+export abstract class ShaclPropertyPath {
+  abstract accept<T>(visitor: PathVisitor<T>, arg: T): void;
 }
 
-export interface AlternativePath {
-  type: typeof sh.alternativePath
-  paths: ShaclPropertyPath[]
+export class PredicatePath extends ShaclPropertyPath {
+  constructor(public term: NamedNode) {
+    super()
+  }
+
+  accept(visitor: PathVisitor, arg: unknown) {
+    visitor.visitPredicatePath(this, arg)
+  }
 }
 
-export interface InversePath {
-  type: typeof sh.inversePath
-  path: ShaclPropertyPath
+export class SequencePath extends ShaclPropertyPath {
+  constructor(public paths: ShaclPropertyPath[]) {
+    super()
+  }
+
+  accept(visitor: PathVisitor, arg: unknown) {
+    visitor.visitSequencePath(this, arg)
+  }
 }
 
-export interface ZeroOrMorePath {
-  type: typeof sh.zeroOrMorePath
-  path: ShaclPropertyPath
+export class AlternativePath extends ShaclPropertyPath {
+  constructor(public paths: ShaclPropertyPath[]) {
+    super()
+  }
+
+  accept(visitor: PathVisitor, arg: unknown) {
+    visitor.visitAlternativePath(this, arg)
+  }
 }
 
-export interface OneOrMorePath {
-  type: typeof sh.oneOrMorePath
-  path: ShaclPropertyPath
+export class InversePath extends ShaclPropertyPath {
+  constructor(public path: ShaclPropertyPath) {
+    super()
+  }
+
+  accept(visitor: PathVisitor, arg: unknown) {
+    visitor.visitInversePath(this, arg)
+  }
 }
 
-export interface ZeroOrOnePath {
-  type: typeof sh.zeroOrOnePath
-  path: ShaclPropertyPath
+export class ZeroOrMorePath extends ShaclPropertyPath {
+  constructor(public path: ShaclPropertyPath) {
+    super()
+  }
+
+  accept(visitor: PathVisitor, arg: unknown) {
+    visitor.visitZeroOrMorePath(this, arg)
+  }
+}
+
+export class OneOrMorePath extends ShaclPropertyPath {
+  constructor(public path: ShaclPropertyPath) {
+    super()
+  }
+
+  accept(visitor: PathVisitor, arg: unknown) {
+    visitor.visitOneOrMorePath(this, arg)
+  }
+}
+
+export class ZeroOrOnePath extends ShaclPropertyPath {
+  constructor(public path: ShaclPropertyPath) {
+    super()
+  }
+
+  accept(visitor: PathVisitor, arg: unknown) {
+    visitor.visitZeroOrOnePath(this, arg)
+  }
 }
 
 export function fromNode(path: MultiPointer | NamedNode): ShaclPropertyPath {
   if ('termType' in path) {
-    return <PredicatePath>{
-      term: path,
-      type: rdf.predicate,
-    }
+    return new PredicatePath(path)
   }
 
   assertWellFormedPath(path)
+
+  if (path.term.termType === 'NamedNode') {
+    return new PredicatePath(path.term)
+  }
 
   const sequence = path.list()
   if (sequence) {
     const paths = [...sequence]
     assertWellFormedShaclList(paths)
 
-    return <SequencePath>{
-      type: rdf.List,
-      paths: paths.map(fromNode),
-    }
+    return new SequencePath(paths.map(fromNode))
   }
 
   if (path.term.termType === 'BlankNode') {
     const inversePath = path.out(sh.inversePath)
     if (inversePath.term) {
-      return <InversePath>{
-        type: sh.inversePath,
-        path: fromNode(inversePath),
-      }
+      return new InversePath(fromNode(inversePath))
     }
 
     const alternativePath = path.out(sh.alternativePath)
@@ -75,43 +123,26 @@ export function fromNode(path: MultiPointer | NamedNode): ShaclPropertyPath {
       const list = [...alternativePath.list() || []]
       assertWellFormedShaclList(list)
 
-      return <AlternativePath>{
-        type: sh.alternativePath,
-        paths: list.map(fromNode),
-      }
+      return new AlternativePath(list.map(fromNode))
     }
 
     const zeroOrMorePath = path.out(sh.zeroOrMorePath)
     if (zeroOrMorePath.term) {
-      return <ZeroOrMorePath>{
-        type: sh.zeroOrMorePath,
-        path: fromNode(zeroOrMorePath),
-      }
+      return new ZeroOrMorePath(fromNode(zeroOrMorePath))
     }
 
     const oneOrMorePath = path.out(sh.oneOrMorePath)
     if (oneOrMorePath.term) {
-      return <OneOrMorePath>{
-        type: sh.oneOrMorePath,
-        path: fromNode(oneOrMorePath),
-      }
+      return new OneOrMorePath(fromNode(oneOrMorePath))
     }
 
     const zeroOrOnePath = path.out(sh.zeroOrOnePath)
     if (zeroOrOnePath.term) {
-      return <ZeroOrOnePath>{
-        type: sh.zeroOrOnePath,
-        path: fromNode(zeroOrOnePath),
-      }
+      return new ZeroOrOnePath(fromNode(zeroOrOnePath))
     }
-
-    throw new Error(`Unrecognized property path ${path.value}`)
   }
 
-  return <PredicatePath>{
-    term: path.term,
-    type: rdf.predicate,
-  }
+  throw new Error(`Unrecognized property path ${path.value}`)
 }
 
 export function assertWellFormedPath(ptr: MultiPointer): asserts ptr is GraphPointer {
