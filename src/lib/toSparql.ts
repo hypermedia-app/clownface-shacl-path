@@ -1,145 +1,65 @@
 import { NamedNode } from 'rdf-js'
 import { SparqlTemplateResult, sparql } from '@tpluscode/rdf-string'
 import { MultiPointer } from 'clownface'
-import { sh } from '@tpluscode/rdf-ns-builders'
-import { assertWellFormedPath } from './path'
+import { assertWellFormedPath, fromNode, ShaclPropertyPath } from './path'
+import * as Path from './path'
 
-interface PartialPath {
-  path: SparqlTemplateResult
-  sequence?: boolean
-  length: number
+function traverse(path: ShaclPropertyPath, { skipParens = false } = {}): SparqlTemplateResult {
+  switch (path.type.value) {
+    case 'http://www.w3.org/1999/02/22-rdf-syntax-ns#List': {
+      const segments = (<Path.SequencePath>path).paths.reduce(pathChain('/'), sparql``)
+      if (skipParens) {
+        return sparql`${segments}`
+      }
+      return sparql`(${segments})`
+    }
+
+    case 'http://www.w3.org/ns/shacl#inversePath': {
+      const inversed = (<Path.InversePath>path).path
+
+      return sparql`^${traverse(inversed)}`
+    }
+
+    case 'http://www.w3.org/ns/shacl#alternativePath': {
+      const segments = (<Path.SequencePath>path).paths.reduce(pathChain('|'), sparql``)
+      if (skipParens) {
+        return sparql`${segments}`
+      }
+      return sparql`(${segments})`
+    }
+
+    case 'http://www.w3.org/ns/shacl#zeroOrMorePath': {
+      const inner = (<Path.ZeroOrMorePath>path).path
+      return sparql`${traverse(inner)}*`
+    }
+
+    case 'http://www.w3.org/ns/shacl#oneOrMorePath': {
+      const inner = (<Path.OneOrMorePath>path).path
+
+      return sparql`${traverse(inner)}+`
+    }
+
+    case 'http://www.w3.org/ns/shacl#zeroOrOnePath': {
+      const inner = (<Path.ZeroOrOnePath>path).path
+
+      return sparql`${traverse(inner)}?`
+    }
+
+    default: {
+      const predicate = (<Path.PredicatePath>path).term
+      return sparql`${predicate}`
+    }
+  }
 }
 
-function sequence(left: PartialPath, operator: string, index: number) {
-  const leftWrapped = left.length > 1 && left.sequence !== true ? sparql`(${left.path})` : left.path
-
-  return (right: PartialPath): PartialPath => {
+function pathChain(operator: string) {
+  return function (previous: SparqlTemplateResult, current: ShaclPropertyPath, index: number) {
     if (index === 0) {
-      return right
+      return traverse(current)
     }
 
-    const rightWrapped = right.length > 1 && right.sequence !== true ? sparql`(${right.path})` : right.path
-
-    return {
-      path: sparql`${leftWrapped}${operator}${rightWrapped}`,
-      length: 2,
-      sequence: left.sequence && right.sequence,
-    }
+    return sparql`${previous}${operator}${traverse(current)}`
   }
-}
-
-function traverse(propertyPath: PartialPath, path: MultiPointer, index = 0): PartialPath {
-  assertWellFormedPath(path)
-
-  const list = path.list()
-  if (list) {
-    const segments = [...list]
-    if (segments.length === 1) {
-      throw new Error('SHACL Property Path list must have at least 2 elements')
-    }
-
-    return segments.reduce(traverse, propertyPath)
-  }
-
-  const next = sequence(propertyPath, '/', index)
-
-  if (path.term.termType === 'BlankNode') {
-    if (path.out(sh.inversePath).term) {
-      const inverse = traverse(propertyPath, path.out(sh.inversePath))
-      if (inverse.length > 1) {
-        return next({
-          path: sparql`^(${inverse.path})`,
-          length: 1,
-        })
-      }
-
-      return next({
-        path: sparql`^${inverse.path}`,
-        length: 1,
-      })
-    }
-
-    if (path.out(sh.alternativePath).term) {
-      const list = path.out(sh.alternativePath).list()
-      if (!list) {
-        throw new Error('Object of sh:alternativePath must be an RDF List')
-      }
-
-      const [first, ...rest] = [...list].map((alt) => {
-        const altElement = traverse(propertyPath, alt)
-        if (altElement.length > 1) {
-          return {
-            path: sparql`(${altElement.path})`,
-            length: 1,
-          }
-        }
-
-        return altElement
-      })
-
-      if (rest.length) {
-        return next({
-          path: sparql`${rest.reduce((alt, next) => sparql`${alt}|${next.path}`, first.path)}`,
-          length: rest.length + 1,
-        })
-      }
-
-      throw new Error('sh:alternativePath must have at least two elements')
-    }
-
-    if (path.out(sh.zeroOrMorePath).term) {
-      const inner = traverse(propertyPath, path.out(sh.zeroOrMorePath))
-      if (inner.length > 1) {
-        return next({
-          path: sparql`(${inner.path})*`,
-          length: 1,
-        })
-      }
-
-      return next({
-        path: sparql`${inner.path}*`,
-        length: 1,
-      })
-    }
-
-    if (path.out(sh.oneOrMorePath).term) {
-      const inner = traverse(propertyPath, path.out(sh.oneOrMorePath))
-      if (inner.length > 1) {
-        return next({
-          path: sparql`(${inner.path})+`,
-          length: 1,
-        })
-      }
-
-      return next({
-        path: sparql`${inner.path}+`,
-        length: 1,
-      })
-    }
-
-    if (path.out(sh.zeroOrOnePath).term) {
-      const inner = traverse(propertyPath, path.out(sh.zeroOrOnePath))
-      if (inner.length > 1) {
-        return next({
-          path: sparql`(${inner.path})?`,
-          length: 1,
-        })
-      }
-
-      return next({
-        path: sparql`${inner.path}?`,
-        length: 1,
-      })
-    }
-
-    throw new Error(`Unrecognized property path ${path.value}`)
-  }
-
-  return next({
-    path: sparql`${path.term}`,
-    length: 1,
-    sequence: true,
-  })
 }
 
 /**
@@ -148,14 +68,7 @@ function traverse(propertyPath: PartialPath, path: MultiPointer, index = 0): Par
  * @param path SHACL Property Path
  */
 export function toSparql(path: MultiPointer | NamedNode): SparqlTemplateResult {
-  if ('termType' in path) {
-    return sparql`${path}`
-  }
-
-  return traverse({
-    path: sparql``,
-    length: 0,
-  }, path).path
+  return traverse(fromNode(path), { skipParens: true })
 }
 
 /**
