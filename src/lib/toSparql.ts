@@ -60,13 +60,10 @@ class ToSparqlPropertyPath extends PathVisitor<SparqlTemplateResult, { isRoot: b
  * Creates a SPARQL template string which represents a SHACL path as Property Path
  *
  * @param path SHACL Property Path
- * @param visitor Visitor which will collect the visited paths as SPARQL Property Path
  */
-export function toSparql(
-  path: MultiPointer | NamedNode,
-  visitor: PathVisitor<SparqlTemplateResult> = new ToSparqlPropertyPath(),
-): SparqlTemplateResult {
-  return fromNode(path).accept(visitor)
+export function toSparql(path: MultiPointer | NamedNode): SparqlTemplateResult {
+  const visitor = new ToSparqlPropertyPath()
+  return visitor.visit(fromNode(path))
 }
 
 /**
