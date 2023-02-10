@@ -341,7 +341,7 @@ describe('clownface-shacl-path', () => {
 
     it('converts simple sequence path', () => {
       // given
-      const [path] = blankNode().addList(sh.path, [schema.knows, schema.spouse]).out(sh.path).toArray()
+      const path = blankNode().addList(sh.path, [schema.knows, schema.spouse]).out(sh.path)
 
       // when
       const sparql = toSparql(path).toString({ prologue: false })
@@ -363,7 +363,7 @@ describe('clownface-shacl-path', () => {
         root.blankNode().addOut(sh.inversePath, schema.spouse),
         root.blankNode().addOut(sh.inversePath, schema.knows),
       ])
-      const [path] = root.out(sh.path).toArray()
+      const path = root.out(sh.path)
 
       // when
       const sparql = toSparql(path).toString({ prologue: false })
@@ -387,7 +387,7 @@ describe('clownface-shacl-path', () => {
         schema.spouse,
         root.blankNode().addList(sh.alternativePath, [skos.prefLabel, skos.altLabel]),
       ])
-      const [path] = root.out(sh.path).toArray()
+      const path = root.out(sh.path)
 
       // when
       const sparql = toSparql(path).toString({ prologue: false })
@@ -597,7 +597,7 @@ describe('clownface-shacl-path', () => {
          [ sh:zeroOrOnePath owl:sameAs ]
          [
            sh:alternativePath (
-             [ sh:oneOrMorePath schema:name ]
+             [ sh:oneOrMorePath schema:knows ]
              [ sh:zeroOrMorePath (owl:sameAs foaf:name) ]
              [ sh:inversePath ( ex:foo ex:bar ) ]
            )
