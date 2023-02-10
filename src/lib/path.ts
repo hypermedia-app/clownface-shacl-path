@@ -20,7 +20,7 @@ export abstract class PathVisitor<R = void, TArg = unknown> {
 }
 
 export abstract class ShaclPropertyPath {
-  abstract accept<T>(visitor: PathVisitor<T>, arg: T): void;
+  abstract accept<R, T>(visitor: PathVisitor<R, T>, arg?: T): R;
 }
 
 export class PredicatePath extends ShaclPropertyPath {
@@ -28,8 +28,8 @@ export class PredicatePath extends ShaclPropertyPath {
     super()
   }
 
-  accept(visitor: PathVisitor, arg: unknown) {
-    visitor.visitPredicatePath(this, arg)
+  accept(visitor: PathVisitor<any>, arg: unknown) {
+    return visitor.visitPredicatePath(this, arg)
   }
 }
 
@@ -38,8 +38,8 @@ export class SequencePath extends ShaclPropertyPath {
     super()
   }
 
-  accept(visitor: PathVisitor, arg: unknown) {
-    visitor.visitSequencePath(this, arg)
+  accept(visitor: PathVisitor<any>, arg: unknown) {
+    return visitor.visitSequencePath(this, arg)
   }
 }
 
@@ -48,8 +48,8 @@ export class AlternativePath extends ShaclPropertyPath {
     super()
   }
 
-  accept(visitor: PathVisitor, arg: unknown) {
-    visitor.visitAlternativePath(this, arg)
+  accept(visitor: PathVisitor<any>, arg: unknown) {
+    return visitor.visitAlternativePath(this, arg)
   }
 }
 
@@ -58,8 +58,8 @@ export class InversePath extends ShaclPropertyPath {
     super()
   }
 
-  accept(visitor: PathVisitor, arg: unknown) {
-    visitor.visitInversePath(this, arg)
+  accept(visitor: PathVisitor<any>, arg: unknown) {
+    return visitor.visitInversePath(this, arg)
   }
 }
 
@@ -68,8 +68,8 @@ export class ZeroOrMorePath extends ShaclPropertyPath {
     super()
   }
 
-  accept(visitor: PathVisitor, arg: unknown) {
-    visitor.visitZeroOrMorePath(this, arg)
+  accept(visitor: PathVisitor<any>, arg: unknown) {
+    return visitor.visitZeroOrMorePath(this, arg)
   }
 }
 
@@ -78,8 +78,8 @@ export class OneOrMorePath extends ShaclPropertyPath {
     super()
   }
 
-  accept(visitor: PathVisitor, arg: unknown) {
-    visitor.visitOneOrMorePath(this, arg)
+  accept(visitor: PathVisitor<any>, arg: unknown) {
+    return visitor.visitOneOrMorePath(this, arg)
   }
 }
 
@@ -88,8 +88,8 @@ export class ZeroOrOnePath extends ShaclPropertyPath {
     super()
   }
 
-  accept(visitor: PathVisitor, arg: unknown) {
-    visitor.visitZeroOrOnePath(this, arg)
+  accept(visitor: PathVisitor<any>, arg: unknown) {
+    return visitor.visitZeroOrOnePath(this, arg)
   }
 }
 

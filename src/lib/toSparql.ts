@@ -16,7 +16,7 @@ class ToSparqlPropertyPath extends PathVisitor<SparqlTemplateResult, { isRoot: b
   }
 
   visitInversePath({ path: inversed }: Path.InversePath): SparqlTemplateResult {
-    return sparql`^${this.visit(inversed, { isRoot: false })}`
+    return sparql`^${inversed.accept(this, { isRoot: false })}`
   }
 
   visitAlternativePath({ paths }: Path.AlternativePath, { isRoot = true } = {}): SparqlTemplateResult {
@@ -30,15 +30,15 @@ class ToSparqlPropertyPath extends PathVisitor<SparqlTemplateResult, { isRoot: b
   }
 
   visitZeroOrMorePath({ path: inner }: Path.ZeroOrMorePath): SparqlTemplateResult {
-    return sparql`${this.visit(inner, { isRoot: false })}*`
+    return sparql`${inner.accept(this, { isRoot: false })}*`
   }
 
   visitOneOrMorePath({ path: inner }: Path.OneOrMorePath): SparqlTemplateResult {
-    return sparql`${this.visit(inner, { isRoot: false })}+`
+    return sparql`${inner.accept(this, { isRoot: false })}+`
   }
 
   visitZeroOrOnePath({ path: inner }: Path.ZeroOrOnePath): SparqlTemplateResult {
-    return sparql`${this.visit(inner, { isRoot: false })}?`
+    return sparql`${inner.accept(this, { isRoot: false })}?`
   }
 
   visitPredicatePath({ term: predicate }: Path.PredicatePath): SparqlTemplateResult {
@@ -48,10 +48,10 @@ class ToSparqlPropertyPath extends PathVisitor<SparqlTemplateResult, { isRoot: b
   private pathChain(operator: string) {
     return (previous: SparqlTemplateResult, current: Path.ShaclPropertyPath, index: number) => {
       if (index === 0) {
-        return this.visit(current, { isRoot: false })
+        return current.accept(this, { isRoot: false })
       }
 
-      return sparql`${previous}${operator}${this.visit(current, { isRoot: false })}`
+      return sparql`${previous}${operator}${current.accept(this, { isRoot: false })}`
     }
   }
 }
@@ -66,7 +66,7 @@ export function toSparql(
   path: MultiPointer | NamedNode,
   visitor: PathVisitor<SparqlTemplateResult> = new ToSparqlPropertyPath(),
 ): SparqlTemplateResult {
-  return visitor.visit(fromNode(path))
+  return fromNode(path).accept(visitor)
 }
 
 /**
