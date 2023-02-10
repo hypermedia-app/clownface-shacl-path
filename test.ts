@@ -84,7 +84,7 @@ class SparqlPatternVisitor extends Path.PathVisitor<SparqlTemplateResult, Contex
     }
 
     const intermediateNode = this.variable()
-    const outPattern = sparql`${intermediateNode} ${path.term} ${pathEnd}`
+    const outPattern = sparql`${intermediateNode} ${path.term} ${pathEnd} .`
 
     this._outPatterns.push(outPattern)
     return sparql`${pathStart} ${path.term}* ${intermediateNode} . \n${outPattern}`;
