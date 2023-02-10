@@ -28,7 +28,7 @@ export class PredicatePath extends ShaclPropertyPath {
     super()
   }
 
-  accept(visitor: PathVisitor<any>, arg: unknown) {
+  accept<T>(visitor: PathVisitor<any, T>, arg: T) {
     return visitor.visitPredicatePath(this, arg)
   }
 }
@@ -38,7 +38,7 @@ export class SequencePath extends ShaclPropertyPath {
     super()
   }
 
-  accept(visitor: PathVisitor<any>, arg: unknown) {
+  accept<T>(visitor: PathVisitor<any, T>, arg: T) {
     return visitor.visitSequencePath(this, arg)
   }
 }
@@ -48,7 +48,7 @@ export class AlternativePath extends ShaclPropertyPath {
     super()
   }
 
-  accept(visitor: PathVisitor<any>, arg: unknown) {
+  accept<T>(visitor: PathVisitor<any, T>, arg: T) {
     return visitor.visitAlternativePath(this, arg)
   }
 }
@@ -58,7 +58,7 @@ export class InversePath extends ShaclPropertyPath {
     super()
   }
 
-  accept(visitor: PathVisitor<any>, arg: unknown) {
+  accept<T>(visitor: PathVisitor<any, T>, arg: T) {
     return visitor.visitInversePath(this, arg)
   }
 }
@@ -68,7 +68,7 @@ export class ZeroOrMorePath extends ShaclPropertyPath {
     super()
   }
 
-  accept(visitor: PathVisitor<any>, arg: unknown) {
+  accept<T>(visitor: PathVisitor<any, T>, arg: T) {
     return visitor.visitZeroOrMorePath(this, arg)
   }
 }
@@ -78,7 +78,7 @@ export class OneOrMorePath extends ShaclPropertyPath {
     super()
   }
 
-  accept(visitor: PathVisitor<any>, arg: unknown) {
+  accept<T>(visitor: PathVisitor<any, T>, arg: T) {
     return visitor.visitOneOrMorePath(this, arg)
   }
 }
@@ -88,7 +88,7 @@ export class ZeroOrOnePath extends ShaclPropertyPath {
     super()
   }
 
-  accept(visitor: PathVisitor<any>, arg: unknown) {
+  accept<T>(visitor: PathVisitor<any, T>, arg: T) {
     return visitor.visitZeroOrOnePath(this, arg)
   }
 }
