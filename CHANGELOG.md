@@ -1,5 +1,11 @@
 # clownface-shacl-path
 
+## 1.5.1
+
+### Patch Changes
+
+- 095115b: Remove the use of `constructor.name` which fails in production builds
+
 ## 1.5.0
 
 ### Minor Changes
