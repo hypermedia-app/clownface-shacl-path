@@ -3,11 +3,30 @@ import { GraphPointer, MultiPointer } from 'clownface'
 import { sh } from '@tpluscode/rdf-ns-builders'
 
 export abstract class PathVisitor<R = void, TArg = unknown> {
-  visit(path: ShaclPropertyPath, arg?: TArg): R {
-    const type = path.constructor.name
-    const visit: (path: ShaclPropertyPath, arg?: TArg) => R = (this as any)[`visit${type}`]
+  visit(path: ShaclPropertyPath, arg: TArg): R {
+    if (path instanceof PredicatePath) {
+      return this.visitPredicatePath(path, arg)
+    }
+    if (path instanceof SequencePath) {
+      return this.visitSequencePath(path, arg)
+    }
+    if (path instanceof AlternativePath) {
+      return this.visitAlternativePath(path, arg)
+    }
+    if (path instanceof InversePath) {
+      return this.visitInversePath(path, arg)
+    }
+    if (path instanceof ZeroOrMorePath) {
+      return this.visitZeroOrMorePath(path, arg)
+    }
+    if (path instanceof OneOrMorePath) {
+      return this.visitOneOrMorePath(path, arg)
+    }
+    if (path instanceof ZeroOrOnePath) {
+      return this.visitZeroOrOnePath(path, arg)
+    }
 
-    return visit.call(this, path, arg)
+    throw new Error('Unexpected path')
   }
 
   abstract visitPredicatePath(path: PredicatePath, arg: TArg): R
