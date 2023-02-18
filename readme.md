@@ -121,3 +121,50 @@ const query = sequence.reduce((query, segment, index) => {
   return query.WHERE`${subject} ${segment} ${object}`
 }, SELECT.ALL)
 ```
+
+
+## Advanced usage
+
+If it is necessary to implement a custom logic for processing of Property Paths, create a class extending from
+[`PathVisitor`](src/lib/path.ts). 
+
+```ts
+import * as Path from 'clownface-shacl-path'
+import type { GraphPointer } from 'clownface'
+
+class MyVisitor extends Path.PathVisitor<TOut, TArg> {
+  visitAlternativePath(path: Path.AlternativePath, arg?: TArg): TOut {
+  }
+
+  visitInversePath(path: Path.InversePath, arg?: TArg): TOut {
+  }
+
+  visitOneOrMorePath(path: Path.OneOrMorePath, arg?: TArg): TOut {
+  }
+
+  visitPredicatePath(path: Path.PredicatePath, arg?: TArg): TOut {
+  }
+
+  visitSequencePath(path: Path.SequencePath, arg?: TArg): TOut {
+  }
+
+  visitZeroOrMorePath(path: Path.ZeroOrMorePath, arg?: TArg): TOut {
+  }
+
+  visitZeroOrOnePath(path: Path.ZeroOrOnePath, arg?: TArg): TOut {
+  }
+}
+```
+
+The type arguments are optional. `TOut` defaults to `void` and `TArg` defaults to `unknown`.
+
+See the classes [`ToSparqlPropertyPath`](src/lib/toSparql.ts) and [`FindNodesVisitor`](src/lib/findNodes.ts)
+for inspiration
+
+To start visiting path nodes:
+
+```ts
+let pathNode: GraphPointer
+const visitor = new MyVisitor()
+  .visit(Path.fromPointer(pathNode)/*, optional initial arg */)
+```

@@ -1,80 +1,82 @@
-import { NamedNode } from 'rdf-js'
+import { NamedNode, Term } from 'rdf-js'
 import type { MultiPointer } from 'clownface'
-import { sh } from '@tpluscode/rdf-ns-builders'
 import TermSet from '@rdf-esm/term-set'
-import { assertWellFormedPath } from './path'
+import * as Path from './path'
 
-function traverse(node: MultiPointer, path: MultiPointer): MultiPointer {
-  assertWellFormedPath(path)
+interface Context {
+  pointer: MultiPointer
+}
 
-  const list = path.list()
-  if (list) {
-    return [...list].reduce(traverse, node)
+class FindNodesVisitor extends Path.PathVisitor<Term[], Context> {
+  visitSequencePath({ paths }: Path.SequencePath, { pointer }: Context): Term[] {
+    return paths.reduce((previous, path) => {
+      return pointer.node(path.accept(this, { pointer: previous }))
+    }, pointer).terms
   }
 
-  if (path.term.termType === 'BlankNode') {
-    if (path.out(sh.inversePath).term) {
-      return node.in(path.out(sh.inversePath).term)
+  visitInversePath({ path }: Path.InversePath, { pointer }: Context): Term[] {
+    if (path instanceof Path.PredicatePath) {
+      return pointer.in(path.term).terms
     }
 
-    if (path.out(sh.alternativePath).term) {
-      const list = path.out(sh.alternativePath).list()
-      if (list) {
-        const results = [...list]
-          .map(alt => traverse(node, alt))
-          .reduce((uniq, mptr) => mptr.toArray().reduce((uniq, ptr) => uniq.add(ptr.term), uniq), new TermSet())
+    throw new Error('Only inverse of Predicate Paths is implemented')
+  }
 
-        return node.node(results)
-      }
+  visitAlternativePath({ paths }: Path.AlternativePath, arg: Context): Term[] {
+    return paths.flatMap(path => {
+      return path.accept(this, arg)
+    })
+  }
 
-      throw new Error('Object of sh:alternativePath must be an RDF List')
-    }
+  visitZeroOrOnePath({ path }: Path.ZeroOrOnePath, { pointer }: Context): Term[] {
+    return [...pointer.terms, ...path.accept(this, { pointer })]
+  }
 
-    if (path.out(sh.zeroOrOnePath).term) {
-      return node.node([
-        ...node.terms,
-        ...traverse(node, path.out(sh.zeroOrOnePath)).terms,
-      ])
-    }
+  visitOneOrMorePath(path: Path.OneOrMorePath, { pointer }: Context): Term[] {
+    return this.greedyPath(path, pointer)
+  }
 
-    const orMorePath = path.out([sh.zeroOrMorePath, sh.oneOrMorePath])
-    if (orMorePath.term) {
-      const results = new TermSet(
-        path.out(sh.zeroOrMorePath).term ? node.terms : [],
-      )
+  visitZeroOrMorePath(path: Path.ZeroOrMorePath, { pointer }: Context): Term[] {
+    return [
+      ...pointer.terms,
+      ...this.greedyPath(path, pointer),
+    ]
+  }
 
-      let current = node
-      let currentTerms = new TermSet(current.terms)
-      while (currentTerms.size) {
-        const nextNodes = traverse(current, orMorePath).toArray()
-        const newResults = new TermSet()
-        for (const next of nextNodes) {
-          if (!results.has(next.term)) {
-            newResults.add(next.term)
-            results.add(next.term)
-          }
+  private greedyPath({ path }: Path.OneOrMorePath | Path.ZeroOrMorePath, pointer: MultiPointer): Term[] {
+    const remaining = [...pointer.terms]
+    const results = new TermSet()
+
+    let current = remaining.pop()
+    while (current) {
+      const nextNodes = path.accept(this, { pointer: pointer.node(current) })
+      for (const nextNode of nextNodes) {
+        if (!results.has(nextNode)) {
+          remaining.push(nextNode)
+          results.add(nextNode)
         }
-
-        currentTerms = newResults
-        current = node.node([...newResults.values()])
       }
 
-      return node.node([...results.values()])
+      current = remaining.pop()
     }
 
-    throw new Error(`Unrecognized property path ${path.value}`)
+    return [...results]
   }
 
-  return node.out(path)
+  visitPredicatePath({ term }: Path.PredicatePath, { pointer }: Context): Term[] {
+    return pointer.out(term).terms
+  }
 }
 
 /**
  * Finds all nodes connected to the input node by following a [SHACL Property Path](https://www.w3.org/TR/shacl/#dfn-shacl-property-path)
  *
- * @param node starting node
+ * @param pointer starting node
  * @param shPath SHACL Property Path
  */
-export function findNodes(node: MultiPointer, shPath: MultiPointer | NamedNode): MultiPointer {
-  const path = 'termType' in shPath ? node.node(shPath) : shPath
-  return traverse(node, path)
+export function findNodes(pointer: MultiPointer, shPath: MultiPointer | NamedNode): MultiPointer {
+  const path = 'termType' in shPath ? pointer.node(shPath) : shPath
+  const terms = new FindNodesVisitor().visit(Path.fromNode(path), { pointer })
+
+  return pointer.node([...new TermSet(terms)])
 }
