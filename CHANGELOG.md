@@ -1,5 +1,11 @@
 # clownface-shacl-path
 
+## 1.5.0
+
+### Minor Changes
+
+- 573246b: Added `PathVisitor` for custom path processing logic
+
 ## 1.4.0
 
 ### Minor Changes
