@@ -1,5 +1,11 @@
 # clownface-shacl-path
 
+## 2.0.0
+
+### Major Changes
+
+- 82e939c: Package is now ESM-only
+
 ## 1.5.1
 
 ### Patch Changes
