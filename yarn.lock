@@ -436,6 +436,13 @@
   dependencies:
     "@types/node" "*"
 
+"@rdfjs/types@^1.0.1":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@rdfjs/types/-/types-1.1.0.tgz#098f180b7cccb03bb416c7b4d03baaa9d480e36b"
+  integrity sha512-5zm8bN2/CC634dTcn/0AhTRLaQRjXDZs3QfcAsQKNturHT7XVWcKy/8p3P5gXl+YkZTAmy7T5M/LyiT/jbkENw==
+  dependencies:
+    "@types/node" "*"
+
 "@tpluscode/eslint-config@^0.4.2":
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/@tpluscode/eslint-config/-/eslint-config-0.4.2.tgz#7342de86806ebd77d8f0ba7271004cbaf1c26df9"
@@ -559,6 +566,13 @@
   integrity sha512-soR/+RMogGiDU1lrpuQl5ZL55/L1eq/JlR2dWx052Uh/RYs9okh3XZHFlIJXHZqjqyjEn4WdbOMfBj7vvc2WVQ==
   dependencies:
     rdf-js "*"
+
+"@types/rdfjs__data-model@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@types/rdfjs__data-model/-/rdfjs__data-model-2.0.2.tgz#dc54d2edcc5699ff1a5ba0301220b8ee44946e31"
+  integrity sha512-7apA0UMstUgjAlY13nhbsp9N6mH1EqL9GvTJqC79cbpDglH/ILjzaQZVlW/M3S/0hMHsMN/lZfgXsk8DN8YiKA==
+  dependencies:
+    "@rdfjs/types" "^1.0.1"
 
 "@types/rdfjs__dataset@^2.0.1":
   version "2.0.1"
