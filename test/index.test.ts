@@ -3,10 +3,10 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import { schema, sh, skos, foaf, rdf, owl } from '@tpluscode/rdf-ns-builders'
 import type { GraphPointer } from 'clownface'
-import { literal } from '@rdf-esm/data-model'
-import namespace from '@rdf-esm/namespace'
-import { findNodes, toSparql } from '../src'
-import { any, blankNode, namedNode } from './nodeFactory'
+import RDF from '@rdfjs/data-model'
+import namespace from '@rdfjs/namespace'
+import { findNodes, toSparql } from '../src/index.js'
+import { any, blankNode, namedNode } from './nodeFactory.js'
 
 const tbbt = namespace('http://example.com/')
 
@@ -186,7 +186,7 @@ describe('clownface-shacl-path', () => {
       const nodes = findNodes(leonard, path)
 
       // then
-      expect(nodes.terms).to.deep.contain.members([literal('Amy'), literal('Amy Farrah-Fowler')])
+      expect(nodes.terms).to.deep.contain.members([RDF.literal('Amy'), RDF.literal('Amy Farrah-Fowler')])
     })
 
     it('follows an alternative of two inverse paths', () => {

@@ -1,5 +1,5 @@
-export { findNodes } from './lib/findNodes'
-export { toSparql } from './lib/toSparql'
+export { findNodes } from './lib/findNodes.js'
+export { toSparql } from './lib/toSparql.js'
 export {
   PathVisitor,
   ShaclPropertyPath,
@@ -11,4 +11,4 @@ export {
   SequencePath,
   ZeroOrOnePath,
   fromNode,
-} from './lib/path'
+} from './lib/path.js'
