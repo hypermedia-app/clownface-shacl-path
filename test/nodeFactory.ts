@@ -1,15 +1,15 @@
 import { NamedNode } from 'rdf-js'
 import clownface from 'clownface'
-import { dataset } from '@rdf-esm/dataset'
+import RDF from '@rdfjs/dataset'
 
 export function blankNode() {
-  return clownface({ dataset: dataset() }).blankNode()
+  return clownface({ dataset: RDF.dataset() }).blankNode()
 }
 
 export function namedNode(uri: string | NamedNode) {
-  return clownface({ dataset: dataset() }).namedNode(uri)
+  return clownface({ dataset: RDF.dataset() }).namedNode(uri)
 }
 
 export function any() {
-  return clownface({ dataset: dataset() })
+  return clownface({ dataset: RDF.dataset() })
 }

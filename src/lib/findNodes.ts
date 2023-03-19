@@ -1,7 +1,7 @@
 import { NamedNode, Term } from 'rdf-js'
 import type { MultiPointer } from 'clownface'
-import TermSet from '@rdf-esm/term-set'
-import * as Path from './path'
+import TermSet from '@rdfjs/term-set'
+import * as Path from './path.js'
 
 interface Context {
   pointer: MultiPointer

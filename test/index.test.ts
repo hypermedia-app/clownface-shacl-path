@@ -3,10 +3,10 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import { schema, sh, skos, foaf, rdf, owl } from '@tpluscode/rdf-ns-builders'
 import type { GraphPointer } from 'clownface'
-import { literal } from '@rdf-esm/data-model'
-import namespace from '@rdf-esm/namespace'
+import { literal } from '@rdfjs/data-model'
+import namespace from '@rdfjs/namespace'
 import { findNodes, toSparql } from '../src'
-import { any, blankNode, namedNode } from './nodeFactory'
+import { any, blankNode, namedNode } from './nodeFactory.js'
 
 const tbbt = namespace('http://example.com/')
 

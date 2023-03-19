@@ -1,8 +1,8 @@
 import { NamedNode } from 'rdf-js'
 import { SparqlTemplateResult, sparql } from '@tpluscode/rdf-string'
 import { MultiPointer } from 'clownface'
-import { assertWellFormedPath, fromNode, PathVisitor } from './path'
-import * as Path from './path'
+import { assertWellFormedPath, fromNode, PathVisitor } from './path.js'
+import * as Path from './path.js'
 
 class ToSparqlPropertyPath extends PathVisitor<SparqlTemplateResult, { isRoot: boolean }> {
   visitSequencePath({ paths }: Path.SequencePath, { isRoot = true } = {}): SparqlTemplateResult {
