@@ -1,5 +1,11 @@
 # clownface-shacl-path
 
+## 2.0.1
+
+### Patch Changes
+
+- f39540c: Relax dependency on `@tpluscode/rdf-ns-builders`
+
 ## 2.0.0
 
 ### Major Changes
