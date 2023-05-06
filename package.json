@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@rdfjs/term-set": "^2.0.1",
-    "@tpluscode/rdf-ns-builders": "^3.0.2",
+    "@tpluscode/rdf-ns-builders": ">=3.0.2",
     "@tpluscode/rdf-string": "^1.0.1"
   },
   "peerDependencies": {
