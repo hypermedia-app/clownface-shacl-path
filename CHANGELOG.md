@@ -1,5 +1,11 @@
 # clownface-shacl-path
 
+## 2.0.2
+
+### Patch Changes
+
+- 08fb77e: Relax dependency on clownface to allow v1 and v2
+
 ## 2.0.1
 
 ### Patch Changes
