@@ -5,8 +5,8 @@ import { schema, sh, skos, foaf, rdf, owl } from '@tpluscode/rdf-ns-builders'
 import type { GraphPointer } from 'clownface'
 import RDF from '@rdfjs/data-model'
 import namespace from '@rdfjs/namespace'
-import { findNodes, toSparql } from '../src/index.js'
-import { any, blankNode, namedNode } from './nodeFactory.js'
+import { findNodes, fromNode, toSparql } from '../src/index.js'
+import { any, blankNode, namedNode, parse } from './nodeFactory.js'
 
 const tbbt = namespace('http://example.com/')
 
@@ -226,6 +226,23 @@ describe('clownface-shacl-path', () => {
 
       // then
       expect(() => findNodes(blankNode(), path)).to.throw(Error)
+    })
+
+    it('follows named node sequence path', async () => {
+      // given
+      const graph = await parse`
+        <sequence> ${rdf.first} ${schema.knows} ;
+               ${rdf.rest} <next> .
+
+        <next> ${rdf.first} ${schema.spouse} ;
+                ${rdf.rest} ${rdf.nil} .`
+      const path = fromNode(graph.namedNode('sequence'), { allowNamedNodeSequencePaths: true })
+
+      // when
+      const nodes = findNodes(sheldon, path)
+
+      // then
+      expect(nodes.term).to.deep.eq(tbbt.Penny)
     })
 
     describe('*-or-more paths', () => {
