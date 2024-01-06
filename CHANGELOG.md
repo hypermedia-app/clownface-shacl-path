@@ -1,5 +1,11 @@
 # clownface-shacl-path
 
+## 2.1.0
+
+### Minor Changes
+
+- daef669: Add option to allow sequence paths which are blank nodes
+
 ## 2.0.2
 
 ### Patch Changes
