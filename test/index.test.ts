@@ -3,12 +3,11 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import { schema, sh, skos, foaf, rdf, owl } from '@tpluscode/rdf-ns-builders'
 import type { GraphPointer } from 'clownface'
-import RDF from '@rdfjs/data-model'
-import namespace from '@rdfjs/namespace'
+import RDF from '@zazuko/env-node'
 import { findNodes, fromNode, toSparql } from '../src/index.js'
 import { any, blankNode, namedNode, parse } from './nodeFactory.js'
 
-const tbbt = namespace('http://example.com/')
+const tbbt = RDF.namespace('http://example.com/')
 
 describe('clownface-shacl-path', () => {
   describe('findNodes', () => {
