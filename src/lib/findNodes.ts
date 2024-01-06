@@ -2,6 +2,7 @@ import { NamedNode, Term } from 'rdf-js'
 import type { MultiPointer } from 'clownface'
 import TermSet from '@rdfjs/term-set'
 import * as Path from './path.js'
+import { ShaclPropertyPath } from './path.js'
 
 interface Context {
   pointer: MultiPointer
@@ -74,9 +75,16 @@ class FindNodesVisitor extends Path.PathVisitor<Term[], Context> {
  * @param pointer starting node
  * @param shPath SHACL Property Path
  */
-export function findNodes(pointer: MultiPointer, shPath: MultiPointer | NamedNode): MultiPointer {
-  const path = 'termType' in shPath ? pointer.node(shPath) : shPath
-  const terms = new FindNodesVisitor().visit(Path.fromNode(path), { pointer })
+export function findNodes(pointer: MultiPointer, shPath: MultiPointer | NamedNode | ShaclPropertyPath): MultiPointer {
+  let path: ShaclPropertyPath
+  if ('termType' in shPath) {
+    path = Path.fromNode(pointer.node(shPath))
+  } else if ('value' in shPath) {
+    path = Path.fromNode(shPath)
+  } else {
+    path = shPath
+  }
+  const terms = new FindNodesVisitor().visit(path, { pointer })
 
   return pointer.node([...new TermSet(terms)])
 }

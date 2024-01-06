@@ -112,14 +112,22 @@ export class ZeroOrOnePath extends ShaclPropertyPath {
   }
 }
 
-export function fromNode(path: MultiPointer | NamedNode): ShaclPropertyPath {
+interface Options {
+  allowNamedNodeSequencePaths?: boolean
+}
+
+export function fromNode(path: MultiPointer | NamedNode, { allowNamedNodeSequencePaths = false }: Options = {}): ShaclPropertyPath {
+  return transformNode({ allowNamedNodeSequencePaths }, path)
+}
+
+function transformNode(options: Required<Options>, path: MultiPointer | NamedNode): ShaclPropertyPath {
   if ('termType' in path) {
     return new PredicatePath(path)
   }
 
   assertWellFormedPath(path)
 
-  if (path.term.termType === 'NamedNode') {
+  if (path.term.termType === 'NamedNode' && !options.allowNamedNodeSequencePaths) {
     return new PredicatePath(path.term)
   }
 
@@ -128,13 +136,13 @@ export function fromNode(path: MultiPointer | NamedNode): ShaclPropertyPath {
     const paths = [...sequence]
     assertWellFormedShaclList(paths)
 
-    return new SequencePath(paths.map(fromNode))
+    return new SequencePath(paths.map(transformNode.bind(null, options)))
   }
 
   if (path.term.termType === 'BlankNode') {
     const inversePath = path.out(sh.inversePath)
     if (inversePath.term) {
-      return new InversePath(fromNode(inversePath))
+      return new InversePath(transformNode(options, inversePath))
     }
 
     const alternativePath = path.out(sh.alternativePath)
@@ -142,23 +150,27 @@ export function fromNode(path: MultiPointer | NamedNode): ShaclPropertyPath {
       const list = [...alternativePath.list() || []]
       assertWellFormedShaclList(list)
 
-      return new AlternativePath(list.map(fromNode))
+      return new AlternativePath(list.map(transformNode.bind(null, options)))
     }
 
     const zeroOrMorePath = path.out(sh.zeroOrMorePath)
     if (zeroOrMorePath.term) {
-      return new ZeroOrMorePath(fromNode(zeroOrMorePath))
+      return new ZeroOrMorePath(transformNode(options, zeroOrMorePath))
     }
 
     const oneOrMorePath = path.out(sh.oneOrMorePath)
     if (oneOrMorePath.term) {
-      return new OneOrMorePath(fromNode(oneOrMorePath))
+      return new OneOrMorePath(transformNode(options, oneOrMorePath))
     }
 
     const zeroOrOnePath = path.out(sh.zeroOrOnePath)
     if (zeroOrOnePath.term) {
-      return new ZeroOrOnePath(fromNode(zeroOrOnePath))
+      return new ZeroOrOnePath(transformNode(options, zeroOrOnePath))
     }
+  }
+
+  if (path.term.termType === 'NamedNode' && options.allowNamedNodeSequencePaths) {
+    return new PredicatePath(path.term)
   }
 
   throw new Error(`Unrecognized property path ${path.value}`)

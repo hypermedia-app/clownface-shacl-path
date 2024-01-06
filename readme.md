@@ -122,8 +122,26 @@ const query = sequence.reduce((query, segment, index) => {
 }, SELECT.ALL)
 ```
 
+## Advanced options
 
-## Advanced usage
+### Allow Named Node Sequence Paths
+
+The SHACL specification requires that lists in Sequence Paths are blank nodes. However, some implementations
+may use Named Nodes instead. To allow that, you can manually create the SHACL Property Path object from a graph pointer
+and pass it to `findNodes` or `toSparql`:
+
+```typescript
+import type { GraphPointer } from 'clownface'
+import { findNodes, fromNode } from 'clownface-shacl-path'
+
+let pathNode: GraphPointer
+let startNode: GraphPointer
+
+const path = fromNode(pathNode, { allowNamedNodeSequencePaths: true })
+const nodes = findNodes(startNode, path)
+```
+
+## Advanced Property Path handling
 
 If it is necessary to implement a custom logic for processing of Property Paths, create a class extending from
 [`PathVisitor`](src/lib/path.ts). 

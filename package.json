@@ -41,9 +41,14 @@
     "@types/rdf-js": "^4.0.1",
     "@types/rdfjs__data-model": "^2.0.2",
     "@types/rdfjs__dataset": "^2.0.1",
+    "@types/rdfjs__environment": "^0.1.10",
+    "@types/rdfjs__fetch-lite": "^3.0.7",
+    "@types/rdf-dataset-ext": "^1.0.7",
+    "@types/rdfjs__traverser": "^0.1.5",
     "@types/rdfjs__term-set": "^2.0.2",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/parser": "^5.55.0",
+    "@zazuko/env-node": "^1.0.3",
     "babel-plugin-add-import-extension": "^1.5.1",
     "c8": "^7.13.0",
     "chai": "^4.3.4",
@@ -61,7 +66,8 @@
     "mocha": "^10.2.0",
     "npm-run-all": "^4.1.5",
     "standard": "^17.0.0",
-    "ts-node": "^10.9.1",
+    "string-to-stream": "^3.0.1",
+    "tsm": "^2.3.0",
     "typescript": "^5.0.2"
   },
   "repository": {
@@ -77,7 +83,7 @@
     "watch-files": [
       "./**/*.ts"
     ],
-    "loader": "ts-node/esm"
+    "loader": "tsm"
   },
   "lint-staged": {
     "*.{js,ts}": [
