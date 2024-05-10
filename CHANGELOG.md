@@ -1,5 +1,11 @@
 # clownface-shacl-path
 
+## 2.1.1
+
+### Patch Changes
+
+- e501301: Removed imports of `rdf-js`
+
 ## 2.1.0
 
 ### Minor Changes
