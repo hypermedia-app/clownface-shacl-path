@@ -1,4 +1,4 @@
-import { NamedNode, Term } from 'rdf-js'
+import type { NamedNode, Term } from '@rdfjs/types'
 import type { MultiPointer } from 'clownface'
 import TermSet from '@rdfjs/term-set'
 import * as Path from './path.js'

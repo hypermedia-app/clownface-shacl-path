@@ -1,5 +1,5 @@
-import { NamedNode } from 'rdf-js'
 import { Readable } from 'node:stream'
+import type { NamedNode } from '@rdfjs/types'
 import RDF from '@zazuko/env-node'
 import stringToStream from 'string-to-stream'
 import { turtle } from '@tpluscode/rdf-string'
