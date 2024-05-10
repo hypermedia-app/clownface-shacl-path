@@ -1,4 +1,4 @@
-import { NamedNode } from 'rdf-js'
+import type { NamedNode } from '@rdfjs/types'
 import { GraphPointer, MultiPointer } from 'clownface'
 import { sh } from '@tpluscode/rdf-ns-builders'
 

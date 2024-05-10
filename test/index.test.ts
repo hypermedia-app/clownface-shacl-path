@@ -1,4 +1,4 @@
-import { NamedNode, BlankNode, Term } from 'rdf-js'
+import type { NamedNode, BlankNode, Term } from '@rdfjs/types'
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import { schema, sh, skos, foaf, rdf, owl } from '@tpluscode/rdf-ns-builders'
