@@ -1,5 +1,11 @@
 # clownface-shacl-path
 
+## 2.2.0
+
+### Minor Changes
+
+- 88a6aab: Added `toAlgebra` which converts a SHACL path to a [sparqljs](https://npm.im/sparqljs) `PropertyPath` object
+
 ## 2.1.1
 
 ### Patch Changes
