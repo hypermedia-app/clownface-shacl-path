@@ -4,7 +4,7 @@ import { describe, it } from 'mocha'
 import { schema, sh, skos, foaf, rdf, owl } from '@tpluscode/rdf-ns-builders'
 import type { GraphPointer } from 'clownface'
 import RDF from '@zazuko/env-node'
-import { findNodes, fromNode, toAlgebra, toSparql } from '../src/index.js'
+import { findNodes, fromNode, toAlgebra, toSparql, PredicatePath } from '../src/index.js'
 import { any, blankNode, namedNode, parse } from './nodeFactory.js'
 
 const tbbt = RDF.namespace('http://example.com/')
@@ -322,6 +322,17 @@ describe('clownface-shacl-path', () => {
   })
 
   describe('toSparql', () => {
+    it('accepts existing pat object', () => {
+      // given
+      const path = new PredicatePath(schema.knows)
+
+      // when
+      const sparql = toSparql(path).toString({ prologue: false })
+
+      // then
+      expect(sparql).to.eq('schema:knows')
+    })
+
     it('converts direct path', () => {
       // given
       const path = schema.knows

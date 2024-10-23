@@ -1,7 +1,7 @@
 import type { NamedNode } from '@rdfjs/types'
 import { SparqlTemplateResult, sparql } from '@tpluscode/rdf-string'
 import { MultiPointer } from 'clownface'
-import { assertWellFormedPath, fromNode, PathVisitor } from './path.js'
+import { assertWellFormedPath, fromNode, PathVisitor, ShaclPropertyPath } from './path.js'
 import * as Path from './path.js'
 
 class ToSparqlPropertyPath extends PathVisitor<SparqlTemplateResult, { isRoot: boolean }> {
@@ -59,11 +59,14 @@ class ToSparqlPropertyPath extends PathVisitor<SparqlTemplateResult, { isRoot: b
 /**
  * Creates a SPARQL template string which represents a SHACL path as Property Path
  *
- * @param path SHACL Property Path
+ * @param pathOrNode SHACL Property Path
  */
-export function toSparql(path: MultiPointer | NamedNode): SparqlTemplateResult {
+export function toSparql(pathOrNode: MultiPointer | NamedNode | ShaclPropertyPath): SparqlTemplateResult {
   const visitor = new ToSparqlPropertyPath()
-  return visitor.visit(fromNode(path))
+  const path = 'termType' in pathOrNode || '_context' in pathOrNode
+    ? fromNode(pathOrNode)
+    : pathOrNode
+  return visitor.visit(path)
 }
 
 /**
