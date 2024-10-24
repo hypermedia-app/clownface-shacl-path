@@ -4,7 +4,16 @@ import { describe, it } from 'mocha'
 import { schema, sh, skos, foaf, rdf, owl } from '@tpluscode/rdf-ns-builders'
 import type { GraphPointer } from 'clownface'
 import RDF from '@zazuko/env-node'
-import { findNodes, fromNode, toAlgebra, toSparql, PredicatePath, NegatedPropertySet, InversePath } from '../src/index.js'
+import {
+  findNodes,
+  fromNode,
+  toAlgebra,
+  toSparql,
+  PredicatePath,
+  NegatedPropertySet,
+  InversePath,
+  SequencePath,
+} from '../src/index.js'
 import { any, blankNode, namedNode, parse } from './nodeFactory.js'
 
 const tbbt = RDF.namespace('http://example.com/')
@@ -887,6 +896,36 @@ describe('clownface-shacl-path', () => {
           type: 'path',
           pathType: '!',
           items: [schema.knows],
+        })
+      })
+
+      it('combined with other paths', () => {
+        // given
+        const path = new SequencePath([
+          new NegatedPropertySet([
+            new PredicatePath(schema.knows),
+          ]),
+          new NegatedPropertySet([
+            new PredicatePath(schema.name),
+          ]),
+        ])
+
+        // when
+        const algebra = toAlgebra(path)
+
+        // then
+        expect(algebra).to.deep.eq({
+          type: 'path',
+          pathType: '/',
+          items: [{
+            type: 'path',
+            pathType: '!',
+            items: [schema.knows],
+          }, {
+            type: 'path',
+            pathType: '!',
+            items: [schema.name],
+          }],
         })
       })
 
