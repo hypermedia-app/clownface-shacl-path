@@ -1,7 +1,7 @@
 import type { NamedNode } from '@rdfjs/types'
 import { SparqlTemplateResult, sparql } from '@tpluscode/rdf-string'
 import { MultiPointer } from 'clownface'
-import { assertWellFormedPath, fromNode, PathVisitor, ShaclPropertyPath } from './path.js'
+import { assertWellFormedPath, fromNode, NegatedPropertySet, PathVisitor, ShaclPropertyPath } from './path.js'
 import * as Path from './path.js'
 
 class ToSparqlPropertyPath extends PathVisitor<SparqlTemplateResult, { isRoot: boolean }> {
@@ -43,6 +43,10 @@ class ToSparqlPropertyPath extends PathVisitor<SparqlTemplateResult, { isRoot: b
 
   visitPredicatePath({ term: predicate }: Path.PredicatePath): SparqlTemplateResult {
     return sparql`${predicate}`
+  }
+
+  visitNegatedPropertySet(path: NegatedPropertySet): SparqlTemplateResult {
+    return sparql`!(${path.paths.reduce(this.pathChain('|'), sparql``)})`
   }
 
   private pathChain(operator: string) {

@@ -25,6 +25,9 @@ export abstract class PathVisitor<R = void, TArg = unknown> {
     if (path instanceof ZeroOrOnePath) {
       return this.visitZeroOrOnePath(path, arg)
     }
+    if (path instanceof NegatedPropertySet) {
+      return this.visitNegatedPropertySet(path, arg)
+    }
 
     throw new Error('Unexpected path')
   }
@@ -36,6 +39,7 @@ export abstract class PathVisitor<R = void, TArg = unknown> {
   abstract visitZeroOrMorePath(path: ZeroOrMorePath, arg?: TArg): R
   abstract visitOneOrMorePath(path: OneOrMorePath, arg?: TArg): R
   abstract visitZeroOrOnePath(path: ZeroOrOnePath, arg?: TArg): R
+  abstract visitNegatedPropertySet(path: NegatedPropertySet, arg?: TArg): R
 }
 
 export abstract class ShaclPropertyPath {
@@ -72,8 +76,8 @@ export class AlternativePath extends ShaclPropertyPath {
   }
 }
 
-export class InversePath extends ShaclPropertyPath {
-  constructor(public path: ShaclPropertyPath) {
+export class InversePath<P extends ShaclPropertyPath = ShaclPropertyPath> extends ShaclPropertyPath {
+  constructor(public path: P) {
     super()
   }
 
@@ -109,6 +113,16 @@ export class ZeroOrOnePath extends ShaclPropertyPath {
 
   accept<T>(visitor: PathVisitor<any, T>, arg: T) {
     return visitor.visitZeroOrOnePath(this, arg)
+  }
+}
+
+export class NegatedPropertySet extends ShaclPropertyPath {
+  constructor(public paths: Array<PredicatePath | InversePath<PredicatePath>>) {
+    super()
+  }
+
+  accept<T>(visitor: PathVisitor<any, T>, arg: T) {
+    return visitor.visitNegatedPropertySet(this, arg)
   }
 }
 
