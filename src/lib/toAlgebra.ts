@@ -1,6 +1,6 @@
 import type { NamedNode } from '@rdfjs/types'
 import { MultiPointer } from 'clownface'
-import type { PropertyPath } from 'sparqljs'
+import type { InversePathInPropertySet, IriTerm, PropertyPath } from 'sparqljs'
 import * as Path from './path.js'
 
 class ToAlgebra extends Path.PathVisitor<PropertyPath | NamedNode> {
@@ -55,14 +55,39 @@ class ToAlgebra extends Path.PathVisitor<PropertyPath | NamedNode> {
       items: [path.path.accept(this)],
     }
   }
+
+  visitNegatedPropertySet({ paths }: Path.NegatedPropertySet): PropertyPath {
+    return {
+      type: 'path',
+      pathType: '!',
+      items: paths.map((path): IriTerm | InversePathInPropertySet => {
+        if (path instanceof Path.PredicatePath) {
+          return path.term
+        }
+
+        return {
+          type: 'path',
+          pathType: '^',
+          items: [path.path.term],
+        }
+      }),
+    }
+  }
 }
 
 /**
  * Creates a sparqljs object which represents a SHACL path as Property Path
  *
- * @param path SHACL Property Path
+ * @param shPath SHACL Property Path
  */
-export function toAlgebra(path: MultiPointer | NamedNode): PropertyPath | NamedNode {
+export function toAlgebra(shPath: MultiPointer | NamedNode | Path.ShaclPropertyPath): PropertyPath | NamedNode {
+  let path: Path.ShaclPropertyPath
+  if ('termType' in shPath || 'value' in shPath) {
+    path = Path.fromNode(shPath)
+  } else {
+    path = shPath
+  }
+
   const visitor = new ToAlgebra()
-  return visitor.visit(Path.fromNode(path))
+  return visitor.visit(path)
 }

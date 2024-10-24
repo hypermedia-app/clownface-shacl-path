@@ -11,5 +11,6 @@ export {
   InversePath,
   SequencePath,
   ZeroOrOnePath,
+  NegatedPropertySet,
   fromNode,
 } from './lib/path.js'

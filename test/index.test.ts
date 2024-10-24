@@ -4,7 +4,7 @@ import { describe, it } from 'mocha'
 import { schema, sh, skos, foaf, rdf, owl } from '@tpluscode/rdf-ns-builders'
 import type { GraphPointer } from 'clownface'
 import RDF from '@zazuko/env-node'
-import { findNodes, fromNode, toAlgebra, toSparql, PredicatePath } from '../src/index.js'
+import { findNodes, fromNode, toAlgebra, toSparql, PredicatePath, NegatedPropertySet, InversePath } from '../src/index.js'
 import { any, blankNode, namedNode, parse } from './nodeFactory.js'
 
 const tbbt = RDF.namespace('http://example.com/')
@@ -23,6 +23,7 @@ describe('clownface-shacl-path', () => {
       .addOut(skos.altLabel, 'Amy Farrah-Fowler')
 
     const penny = graph.namedNode(tbbt.Penny)
+      .addOut(skos.prefLabel, 'Penny')
 
     const leonard = graph.namedNode(tbbt.Leonard)
       .addOut(schema.spouse, tbbt.Penny)
@@ -37,6 +38,92 @@ describe('clownface-shacl-path', () => {
 
       // then
       expect(nodes.terms).to.deep.contain.members([tbbt.Penny, tbbt.Howard, tbbt.Amy, tbbt.Leonard])
+    })
+
+    context('negated path', () => {
+      it('follows simple negated path', () => {
+        // given
+        const path = new NegatedPropertySet([
+          new PredicatePath(schema.knows),
+        ])
+
+        // when
+        const nodes = findNodes(sheldon, path)
+
+        // then
+        expect(nodes.terms).to.deep.contain.members([tbbt.Amy])
+      })
+
+      it('follows simple negated path, multiple matches', () => {
+        // given
+        const path = new NegatedPropertySet([
+          new PredicatePath(schema.spouse),
+        ])
+
+        // when
+        const nodes = findNodes(sheldon, path)
+
+        // then
+        expect(nodes.terms).to.deep.contain.members([tbbt.Penny, tbbt.Howard, tbbt.Leonard])
+      })
+
+      it('follows multiple negated path', () => {
+        // given
+        const path = new NegatedPropertySet([
+          new PredicatePath(skos.prefLabel),
+          new PredicatePath(skos.altLabel),
+        ])
+
+        // when
+        const nodes = findNodes(amy, path)
+
+        // then
+        expect(nodes.terms).to.deep.contain.members([tbbt.Leonard])
+      })
+
+      it('follows inverse negated path', () => {
+        // given
+        const path = new NegatedPropertySet([
+          new InversePath(new PredicatePath(schema.spouse)),
+        ])
+
+        // when
+        const nodes = findNodes(penny, path)
+
+        // then
+        expect(nodes.terms).to.deep.contain.members([tbbt.Sheldon])
+      })
+
+      it('follows multiple inverse negated path', () => {
+        // given
+        const path = new NegatedPropertySet([
+          new InversePath(new PredicatePath(schema.spouse)),
+          new InversePath(new PredicatePath(schema.knows)),
+        ])
+
+        // when
+        const nodes = findNodes(penny, path)
+
+        // then
+        expect(nodes.terms).to.deep.contain.members([])
+      })
+
+      it('follows mixed negated path', () => {
+        // given
+        const path = new NegatedPropertySet([
+          new PredicatePath(skos.prefLabel),
+          new PredicatePath(skos.altLabel),
+          new InversePath(new PredicatePath(schema.spouse)),
+        ])
+
+        // when
+        const nodes = findNodes(penny, path)
+
+        // then
+        expect(nodes.terms).to.deep.contain.members([
+          tbbt.Sheldon,
+        ])
+      })
     })
 
     it('follows direct path as pointer', () => {
@@ -342,6 +429,50 @@ describe('clownface-shacl-path', () => {
 
       // then
       expect(sparql).to.eq('schema:knows')
+    })
+
+    context('converts negated property set', () => {
+      it('from single predicate', () => {
+        // given
+        const path = new NegatedPropertySet([
+          new PredicatePath(schema.knows),
+        ])
+
+        // when
+        const sparql = toSparql(path).toString({ prologue: false })
+
+        // then
+        expect(sparql).to.eq('!(schema:knows)')
+      })
+
+      it('from multiple predicates', () => {
+        // given
+        const path = new NegatedPropertySet([
+          new PredicatePath(schema.knows),
+          new PredicatePath(schema.spouse),
+          new PredicatePath(rdf.type),
+        ])
+
+        // when
+        const sparql = toSparql(path).toString({ prologue: false })
+
+        // then
+        expect(sparql).to.eq('!(schema:knows|schema:spouse|rdf:type)')
+      })
+
+      it('from multiple predicates', () => {
+        // given
+        const path = new NegatedPropertySet([
+          new PredicatePath(rdf.type),
+          new InversePath(new PredicatePath(rdf.type)),
+        ])
+
+        // when
+        const sparql = toSparql(path).toString({ prologue: false })
+
+        // then
+        expect(sparql).to.eq('!(rdf:type|^rdf:type)')
+      })
     })
 
     it('converts simple inverse path', () => {
@@ -739,6 +870,86 @@ describe('clownface-shacl-path', () => {
 
       // then
       expect(algebra).to.deep.eq(schema.knows)
+    })
+
+    context('converts negated property set', () => {
+      it('from single predicate', () => {
+        // given
+        const path = new NegatedPropertySet([
+          new PredicatePath(schema.knows),
+        ])
+
+        // when
+        const algebra = toAlgebra(path)
+
+        // then
+        expect(algebra).to.deep.eq({
+          type: 'path',
+          pathType: '!',
+          items: [schema.knows],
+        })
+      })
+
+      it('from multiple predicates', () => {
+        // given
+        const path = new NegatedPropertySet([
+          new PredicatePath(schema.knows),
+          new PredicatePath(schema.spouse),
+        ])
+
+        // when
+        const algebra = toAlgebra(path)
+
+        // then
+        expect(algebra).to.deep.eq({
+          type: 'path',
+          pathType: '!',
+          items: [schema.knows, schema.spouse],
+        })
+      })
+
+      it('from single inverse property', () => {
+        // given
+        const path = new NegatedPropertySet([
+          new InversePath(new PredicatePath(schema.knows)),
+        ])
+
+        // when
+        const algebra = toAlgebra(path)
+
+        // then
+        expect(algebra).to.deep.eq({
+          type: 'path',
+          pathType: '!',
+          items: [{
+            type: 'path',
+            pathType: '^',
+            items: [schema.knows],
+          }],
+        })
+      })
+
+      it('from mixed properties', () => {
+        // given
+        const path = new NegatedPropertySet([
+          new PredicatePath(schema.knows),
+          new InversePath(new PredicatePath(schema.knows)),
+        ])
+
+        // when
+        const algebra = toAlgebra(path)
+
+        // then
+        expect(algebra).to.deep.eq({
+          type: 'path',
+          pathType: '!',
+          items: [schema.knows, {
+            type: 'path',
+            pathType: '^',
+            items: [schema.knows],
+          }],
+        })
+      })
     })
 
     it('converts simple inverse path', () => {

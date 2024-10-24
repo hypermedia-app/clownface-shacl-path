@@ -1,8 +1,9 @@
-import type { NamedNode, Term } from '@rdfjs/types'
+/* eslint-disable camelcase */
+import type { NamedNode, Term, Quad_Predicate, Quad } from '@rdfjs/types'
 import type { MultiPointer } from 'clownface'
 import TermSet from '@rdfjs/term-set'
+import TermMap from '@rdfjs/term-map'
 import * as Path from './path.js'
-import { ShaclPropertyPath } from './path.js'
 
 interface Context {
   pointer: MultiPointer
@@ -67,6 +68,41 @@ class FindNodesVisitor extends Path.PathVisitor<Term[], Context> {
   visitPredicatePath({ term }: Path.PredicatePath, { pointer }: Context): Term[] {
     return pointer.out(term).terms
   }
+
+  visitNegatedPropertySet({ paths }: Path.NegatedPropertySet, { pointer }: Context): Term[] {
+    const outLinks = [...pointer.dataset.match(pointer.term)]
+      .reduce(toPredicateMap('object'), new TermMap())
+
+    const inLinks = [...pointer.dataset.match(null, null, pointer.term)]
+      .reduce(toPredicateMap('subject'), new TermMap())
+    let includeInverse = false
+
+    for (const path of paths) {
+      if (path instanceof Path.PredicatePath) {
+        outLinks.delete(path.term)
+      } else {
+        includeInverse = true
+        inLinks.delete(path.path.term)
+      }
+    }
+
+    if (includeInverse) {
+      return [...new TermSet([...outLinks.values(), ...inLinks.values()].flatMap(v => [...v]))]
+    }
+
+    return [...outLinks.values()].flatMap(v => [...v])
+  }
+}
+
+function toPredicateMap(so: 'subject' | 'object') {
+  return (map: TermMap<Quad_Predicate, TermSet>, quad: Quad) => {
+    if (!map.has(quad.predicate)) {
+      map.set(quad.predicate, new TermSet())
+    }
+
+    map.get(quad.predicate)!.add(quad[so])
+    return map
+  }
 }
 
 /**
@@ -75,11 +111,9 @@ class FindNodesVisitor extends Path.PathVisitor<Term[], Context> {
  * @param pointer starting node
  * @param shPath SHACL Property Path
  */
-export function findNodes(pointer: MultiPointer, shPath: MultiPointer | NamedNode | ShaclPropertyPath): MultiPointer {
-  let path: ShaclPropertyPath
-  if ('termType' in shPath) {
-    path = Path.fromNode(pointer.node(shPath))
-  } else if ('value' in shPath) {
+export function findNodes(pointer: MultiPointer, shPath: MultiPointer | NamedNode | Path.ShaclPropertyPath): MultiPointer {
+  let path: Path.ShaclPropertyPath
+  if ('termType' in shPath || 'value' in shPath) {
     path = Path.fromNode(shPath)
   } else {
     path = shPath
