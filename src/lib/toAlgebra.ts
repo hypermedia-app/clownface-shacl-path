@@ -1,6 +1,6 @@
 import type { NamedNode } from '@rdfjs/types'
 import { MultiPointer } from 'clownface'
-import type { InversePathInPropertySet, IriTerm, PropertyPath } from 'sparqljs'
+import type { PropertyPath } from 'sparqljs'
 import * as Path from './path.js'
 
 class ToAlgebra extends Path.PathVisitor<PropertyPath | NamedNode> {
@@ -60,7 +60,7 @@ class ToAlgebra extends Path.PathVisitor<PropertyPath | NamedNode> {
     return {
       type: 'path',
       pathType: '!',
-      items: paths.map((path): IriTerm | InversePathInPropertySet => {
+      items: paths.map((path) => {
         if (path instanceof Path.PredicatePath) {
           return path.term
         }
