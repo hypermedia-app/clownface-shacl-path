@@ -409,7 +409,7 @@ describe('clownface-shacl-path', () => {
   })
 
   describe('toSparql', () => {
-    it('accepts existing pat object', () => {
+    it('accepts existing path object', () => {
       // given
       const path = new PredicatePath(schema.knows)
 
