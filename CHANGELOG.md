@@ -1,5 +1,13 @@
 # clownface-shacl-path
 
+## 2.4.0
+
+### Minor Changes
+
+- 6e90115: Adds `NegatedPropertySet` class to support negated paths in `findNodes`, `toAlgebra` and `toAlgebra`
+  NOTE: negated paths are not supported in SHACL representation (see https://github.com/w3c/shacl/issues/20)
+- 55a5536: Allow calling `toSparql` with a path object
+
 ## 2.3.0
 
 ### Minor Changes
