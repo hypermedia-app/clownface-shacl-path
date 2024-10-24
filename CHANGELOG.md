@@ -1,5 +1,11 @@
 # clownface-shacl-path
 
+## 2.3.0
+
+### Minor Changes
+
+- d4af8b4: Allow calling `toSparql` with a path object
+
 ## 2.2.0
 
 ### Minor Changes
